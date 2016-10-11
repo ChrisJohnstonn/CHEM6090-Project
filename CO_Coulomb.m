@@ -1,0 +1,95 @@
+%Time Step
+dt = 1e-15; %In femtoseconds
+Total_Steps = 16000;
+
+%Constants
+%Atomic Mass Unit
+amu = 1.6605e-27;
+%Atomic Mass
+am_c = 12.0107;
+am_o = 15.9994;
+%Mass in kg
+m_c = am_c * amu;
+m_o = am_o * amu;
+%Coulomb's Constant
+k = 8.9876e09;
+%Elementary Charge
+q = 1.602e-19;
+%Charges on atoms
+q_c = 1*q;
+q_o = 1*q;
+
+%Initial Conditions
+%Position - Bond Length of CO = 112.8pm
+%Assume parallel to x plane and centre of molecule is origin.
+%Distance in Angstroms
+r_c_x_curr = -0.564e-10;
+r_c_y_curr = 0;
+r_o_x_curr = 0.564e-10;
+r_o_y_curr = 0;
+%Velocity
+%Assume stationary
+v_c_x_curr = 0;
+v_c_y_curr = 0;
+v_o_x_curr = 0;
+v_o_y_curr = 0;
+%Force
+%Assume 0 at t = 0
+f_c_x_curr = 0;
+f_c_y_curr = 0;
+f_o_x_curr = 0;
+f_o_y_curr = 0;
+
+%Create Result Arrays
+result_velocity_c_x = zeros(Total_Steps,1);
+result_velocity_c_y = zeros(Total_Steps,1);
+
+for i = 1:Total_Steps
+   %Velocity Verlet Algorithm
+   %1. Given current position and velocity, compute forces.
+   %2. Update position
+   %3. 
+   %Distance Between Atoms
+   %Pythagoras
+   r_c_o = sqrt((r_c_x_curr - r_o_x_curr)^2 + (r_c_y_curr - r_o_y_curr)^2);
+   r_o_c = r_c_o;
+   
+   %Force Between Atoms
+   %Coulombic Forces -> F = (k*q1*q2)/(r^2)
+   f_c_o = (k * q_c * q_o) / ((r_c_o)^2);
+   f_o_c = f_c_o;
+   
+   %In this simple case, all forces are parallel to x axis
+   f_c_x_curr = f_c_o;
+   f_c_y_curr = 0;
+   f_o_x_curr = f_o_c;
+   f_o_y_curr = 0;
+   
+   %Velocities
+   % v(new) = v(old) + (f/2m)*dt
+   v_c_x_curr = v_c_x_curr + (f_c_x_curr / (2*m_c))*dt;
+   v_c_y_curr = v_c_y_curr + (f_c_y_curr / (2*m_c))*dt;
+   %display(v_c_x_curr);
+   
+   v_o_x_curr = v_o_x_curr + (f_o_x_curr / (2*m_o))*dt;
+   v_o_y_curr = v_o_y_curr + (f_o_y_curr / (2*m_o))*dt;
+   
+   %Positions
+   %New Positions
+   % r(new) = r(old) + v(t)*dt + (f(t)/2m) * dt * dt
+   %display(string('x curr: ') + r_c_x_curr + string(' vel x curr: ') + v_c_x_curr + string(' force x curr: ') + f_c_x_curr)
+   %display (string('r_c_x = ') + r_c_x_curr + string(' + ') + v_c_x_curr + string(' * ') + dt + string(' ((' ) + f_c_x_curr + string(')/(2 *') + m_c +string('))*') + dt*dt);
+   r_c_x_curr = r_c_x_curr + v_c_x_curr * dt + ((f_c_x_curr)/(2 * m_c))*dt*dt;
+   r_c_y_curr = r_c_y_curr + v_c_y_curr * dt + ((f_c_y_curr)/(2 * m_c))*dt*dt;
+   
+   r_o_x_curr = r_o_x_curr + v_o_x_curr * dt + ((f_o_x_curr)/(2 * m_o))*dt*dt;
+   r_o_y_curr = r_o_y_curr + v_o_y_curr * dt + ((f_o_y_curr)/(2 * m_o))*dt*dt;
+   
+   
+end
+
+%Display finishing positions
+display(r_c_x_curr)
+display(r_c_y_curr)
+display(r_o_x_curr)
+display(r_o_y_curr)
