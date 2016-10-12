@@ -1,5 +1,5 @@
 %Time Step
-dt = 1e-15; %In femtoseconds
+dt = 1e-15; %In seconds
 Total_Steps = 16000;
 
 %Constants
@@ -118,9 +118,3 @@ for i = 1:Total_Steps
    
    
 end
-
-%Display finishing positions
-display(r_c_x_curr)
-display(r_c_y_curr)
-display(r_o_x_curr)
-display(r_o_y_curr)
