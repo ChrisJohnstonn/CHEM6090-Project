@@ -43,12 +43,25 @@ f_o_y_curr = 0;
 %Create Result Arrays
 result_velocity_c_x = zeros(Total_Steps,1);
 result_velocity_c_y = zeros(Total_Steps,1);
+result_velocity_o_x = zeros(Total_Steps,1);
+result_velocity_o_y = zeros(Total_Steps,1);
+result_force_c_x = zeros(Total_Steps,1);
+result_force_c_y = zeros(Total_Steps,1);
+result_force_o_x = zeros(Total_Steps,1);
+result_force_o_y = zeros(Total_Steps,1);
+result_position_c_x = zeros(Total_Steps,1);
+result_position_c_y = zeros(Total_Steps,1);
+result_position_o_x = zeros(Total_Steps,1);
+result_position_o_y = zeros(Total_Steps,1);
+
+result_energy_c = zeros(Total_Steps,1);
+result_energy_o = zeros(Total_Steps,1);
 
 for i = 1:Total_Steps
    %Velocity Verlet Algorithm
    %1. Given current position and velocity, compute forces.
    %2. Update position
-   %3. 
+   %3. Repeat
    %Distance Between Atoms
    %Pythagoras
    r_c_o = sqrt((r_c_x_curr - r_o_x_curr)^2 + (r_c_y_curr - r_o_y_curr)^2);
@@ -77,13 +90,31 @@ for i = 1:Total_Steps
    %Positions
    %New Positions
    % r(new) = r(old) + v(t)*dt + (f(t)/2m) * dt * dt
-   %display(string('x curr: ') + r_c_x_curr + string(' vel x curr: ') + v_c_x_curr + string(' force x curr: ') + f_c_x_curr)
-   %display (string('r_c_x = ') + r_c_x_curr + string(' + ') + v_c_x_curr + string(' * ') + dt + string(' ((' ) + f_c_x_curr + string(')/(2 *') + m_c +string('))*') + dt*dt);
    r_c_x_curr = r_c_x_curr + v_c_x_curr * dt + ((f_c_x_curr)/(2 * m_c))*dt*dt;
    r_c_y_curr = r_c_y_curr + v_c_y_curr * dt + ((f_c_y_curr)/(2 * m_c))*dt*dt;
    
    r_o_x_curr = r_o_x_curr + v_o_x_curr * dt + ((f_o_x_curr)/(2 * m_o))*dt*dt;
    r_o_y_curr = r_o_y_curr + v_o_y_curr * dt + ((f_o_y_curr)/(2 * m_o))*dt*dt;
+   
+   %Calculate kinetic energy and convert from J to eV
+   ke_c_curr = 0.5 * m_c * v_c_x_curr * v_c_x_curr * 6.2415e18;
+   ke_o_curr = 0.5 * m_o * v_o_x_curr * v_o_x_curr * 6.2415e18;
+   
+   %save all results in array
+   result_velocity_c_x(i) = v_c_x_curr;
+   result_velocity_c_y(i) = v_c_y_curr;
+   result_velocity_o_x(i) = v_o_x_curr;
+   result_velocity_o_y(i) = v_o_y_curr;
+   result_force_c_x(i) = f_c_x_curr;
+   result_force_c_y(i) = f_c_y_curr;
+   result_force_o_x(i) = f_o_x_curr;
+   result_force_o_y(i) = f_o_y_curr;
+   result_position_c_x(i) = r_c_x_curr;
+   result_position_c_y(i) = r_c_y_curr;
+   result_position_o_x(i) = r_o_x_curr;
+   result_position_o_y(i) = r_o_y_curr;
+   result_energy_c(i) = ke_c_curr;
+   result_energy_o(i) = ke_o_curr;
    
    
 end
