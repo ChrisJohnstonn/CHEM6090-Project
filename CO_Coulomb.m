@@ -1,18 +1,23 @@
 %Time Step
 dt = 1e-15; %In seconds
-Total_Steps = 16000;
+Total_Steps = 1000;
 
 %Constants
 %Avogadro's Constant
-avc = 6.0221e-23;
+avc = 6.0221e23;
 %Atomic Mass Unit
 amu = 1.6605e-27;
 %Atomic Mass
 am_c = 12.0107;
 am_o = 15.9994;
 %Mass in kg
-m_c = am_c * avc * 0.001;
-m_o = am_o * avc * 0.001;
+
+%m_c = (am_c / avc) * 0.001;
+%m_o = (am_o / avc) * 0.001;
+
+m_c = am_c * amu;
+m_o = am_o * amu;
+
 %Coulomb's Constant
 k = 8.9876e09;
 %Elementary Charge
@@ -25,9 +30,9 @@ q_o = 1*q;
 %Position - Bond Length of CO = 112.8pm
 %Assume parallel to x plane and centre of molecule is origin.
 %Distance in Meters
-r_c_x_curr = -0.564e-10;
+r_c_x_curr = 0.564e-10;
 r_c_y_curr = 0;
-r_o_x_curr = 0.564e-10;
+r_o_x_curr = -0.564e-10;
 r_o_y_curr = 0;
 %Velocity
 %Assume stationary
@@ -72,7 +77,7 @@ for i = 1:Total_Steps
    %Force Between Atoms
    %Coulombic Forces -> F = (k*q1*q2)/(r^2)
    f_c_o = (k * q_c * q_o) / ((r_c_o)^2);
-   f_o_c = f_c_o;
+   f_o_c = -1*f_c_o;
    
    %In this simple case, all forces are parallel to x axis
    f_c_x_curr = f_c_o;
