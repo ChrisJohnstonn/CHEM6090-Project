@@ -30,10 +30,10 @@ q_o = 1*q;
 %Position - Bond Length of CO = 112.8pm
 %Assume parallel to x plane and centre of molecule is origin.
 %Distance in Meters
-r_c_x_curr = 0.564e-10;
-r_c_y_curr = 0;
-r_o_x_curr = -0.564e-10;
-r_o_y_curr = 0;
+r_c_x_curr = 0.398808e-10;
+r_c_y_curr = -0.398808e-10;
+r_o_x_curr = -0.398808e-10;
+r_o_y_curr = 0.398808e-10;
 %Velocity
 %Assume stationary
 v_c_x_curr = 0;
@@ -77,13 +77,24 @@ for i = 1:Total_Steps
    %Force Between Atoms
    %Coulombic Forces -> F = (k*q1*q2)/(r^2)
    f_c_o = (k * q_c * q_o) / ((r_c_o)^2);
-   f_o_c = -1*f_c_o;
+   f_o_c = f_c_o;
    
-   %In this simple case, all forces are parallel to x axis
-   f_c_x_curr = f_c_o;
-   f_c_y_curr = 0;
-   f_o_x_curr = f_o_c;
-   f_o_y_curr = 0;
+   %Resolve Forces into x and y components
+   %f_x = f * cos(theta)
+   %f_y = f * sin(theta)
+   %theta is angle between force and x direction
+   f_c_o_x = f_c_o * (r_c_x_curr - r_o_x_curr) / r_c_o;
+   f_c_o_y = f_c_o * (r_c_y_curr - r_o_y_curr) / r_c_o;
+   
+   f_o_c_x = f_o_c * (r_o_x_curr - r_c_x_curr) / r_o_c;
+   f_o_c_y = f_o_c * (r_o_y_curr - r_c_y_curr) / r_o_c;
+   
+   
+   
+   f_c_x_curr = f_c_o_x;
+   f_c_y_curr = f_c_o_y;
+   f_o_x_curr = f_o_c_x;
+   f_o_y_curr = f_o_c_y;
    
    %Velocities
    % v(new) = v(old) + (f/2m)*dt
@@ -94,6 +105,8 @@ for i = 1:Total_Steps
    v_o_x_curr = v_o_x_curr + (f_o_x_curr / (2*m_o))*dt;
    v_o_y_curr = v_o_y_curr + (f_o_y_curr / (2*m_o))*dt;
    
+   v_c_curr = sqrt(v_c_x_curr^2 + v_c_y_curr^2);
+   v_o_curr = sqrt(v_o_x_curr^2 + v_o_y_curr^2);
    %Positions
    %New Positions
    % r(new) = r(old) + v(t)*dt + (f(t)/2m) * dt * dt
@@ -104,8 +117,8 @@ for i = 1:Total_Steps
    r_o_y_curr = r_o_y_curr + v_o_y_curr * dt + ((f_o_y_curr)/(2 * m_o))*dt*dt;
    
    %Calculate kinetic energy and convert from J to eV
-   ke_c_curr = 0.5 * m_c * v_c_x_curr * v_c_x_curr * 6.2415e18;
-   ke_o_curr = 0.5 * m_o * v_o_x_curr * v_o_x_curr * 6.2415e18;
+   ke_c_curr = 0.5 * m_c * v_c_curr * v_c_curr * 6.2415e18;
+   ke_o_curr = 0.5 * m_o * v_o_curr * v_o_curr * 6.2415e18;
    
    %save all results in array
    result_velocity_c_x(i) = v_c_x_curr;
