@@ -15,8 +15,8 @@ am_o = 15.9994;
 %m_c = (am_c / avc) * 0.001;
 %m_o = (am_o / avc) * 0.001;
 
-m_c = am_c * amu;
-m_o = am_o * amu;
+m_c = mass('C') * amu;
+m_o = mass('O') * amu;
 
 %Coulomb's Constant
 k = 8.9876e09;
@@ -30,9 +30,9 @@ q_o = 1*q;
 %Position - Bond Length of CO = 112.8pm
 %Assume parallel to x plane and centre of molecule is origin.
 %Distance in Meters
-r_c_x_curr = 0.398808e-10;
+r_c_x_curr = 0.498808e-10;
 r_c_y_curr = -0.398808e-10;
-r_o_x_curr = -0.398808e-10;
+r_o_x_curr = -0.298808e-10;
 r_o_y_curr = 0.398808e-10;
 %Velocity
 %Assume stationary
