@@ -47,6 +47,12 @@ f_c_y_curr = 0;
 f_o_x_curr = 0;
 f_o_y_curr = 0;
 
+f_c_x_prev = 0;
+f_c_y_prev = 0;
+f_o_x_prev = 0;
+f_o_y_prev = 0;
+
+
 %Create Result Arrays
 result_velocity_c_x = zeros(Total_Steps,1);
 result_velocity_c_y = zeros(Total_Steps,1);
@@ -98,12 +104,19 @@ for i = 1:Total_Steps
    
    %Velocities
    % v(new) = v(old) + (f/2m)*dt
-   v_c_x_curr = v_c_x_curr + (f_c_x_curr / (2*m_c))*dt;
-   v_c_y_curr = v_c_y_curr + (f_c_y_curr / (2*m_c))*dt;
+   disp(string('Previous: ') + f_c_x_prev)
+   disp(string('Current: ') + f_c_x_curr)
+   v_c_x_curr = v_c_x_curr + ((f_c_x_curr + f_c_x_prev) / (2*m_c))*dt;
+   v_c_y_curr = v_c_y_curr + ((f_c_y_curr + f_c_y_prev) / (2*m_c))*dt;
    %display(v_c_x_curr);
    
-   v_o_x_curr = v_o_x_curr + (f_o_x_curr / (2*m_o))*dt;
-   v_o_y_curr = v_o_y_curr + (f_o_y_curr / (2*m_o))*dt;
+   v_o_x_curr = v_o_x_curr + ((f_o_x_curr + f_o_x_prev) / (2*m_o))*dt;
+   v_o_y_curr = v_o_y_curr + ((f_o_y_curr + f_o_y_prev) / (2*m_o))*dt;
+   
+   f_c_x_prev = f_c_x_curr;
+   f_c_y_prev = f_c_y_curr;
+   f_o_x_prev = f_o_x_curr;
+   f_o_y_prev = f_o_y_curr;
    
    v_c_curr = sqrt(v_c_x_curr^2 + v_c_y_curr^2);
    v_o_curr = sqrt(v_o_x_curr^2 + v_o_y_curr^2);

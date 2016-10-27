@@ -54,6 +54,13 @@ f_2_x_curr = 0;
 f_2_y_curr = 0;
 f_2_z_curr = 0;
 
+f_1_x_prev = 0;
+f_1_y_prev = 0;
+f_1_z_prev = 0;
+f_2_x_prev = 0;
+f_2_y_prev = 0;
+f_2_z_prev = 0;
+
 %Create Result Arrays
 result_velocity_1_x = zeros(total_steps,1);
 result_velocity_1_y = zeros(total_steps,1);
@@ -102,7 +109,7 @@ for i = 1:total_steps
    
    f_2_1_x = f_2_1 * (r_2_x_curr - r_1_x_curr) / r_2_1;
    f_2_1_y = f_2_1 * (r_2_y_curr - r_1_y_curr) / r_2_1;
-   f_2_1_z = f_2_1 * (r_2_z_curr - r_2_z_curr) / r_2_1;
+   f_2_1_z = f_2_1 * (r_2_z_curr - r_1_z_curr) / r_2_1;
    
    
    
@@ -115,15 +122,15 @@ for i = 1:total_steps
    f_2_z_curr = f_2_1_z;
    
    %Velocities
-   % v(new) = v(old) + (f/2m)*dt
-   v_1_x_curr = v_1_x_curr + (f_1_x_curr / (2*m_1))*dt;
-   v_1_y_curr = v_1_y_curr + (f_1_y_curr / (2*m_1))*dt;
-   v_1_z_curr = v_1_z_curr + (f_1_z_curr / (2*m_1))*dt;
+   % v(new) = v(old) + ((f(old) + f(curr))/2m)*dt
+   v_1_x_curr = v_1_x_curr + ((f_1_x_curr + f_1_x_prev) / (2*m_1))*dt;
+   v_1_y_curr = v_1_y_curr + ((f_1_y_curr + f_1_y_prev) / (2*m_1))*dt;
+   v_1_z_curr = v_1_z_curr + ((f_1_z_curr + f_1_z_prev) / (2*m_1))*dt;
    %display(v_1_x_curr);
    
-   v_2_x_curr = v_2_x_curr + (f_2_x_curr / (2*m_2))*dt;
-   v_2_y_curr = v_2_y_curr + (f_2_y_curr / (2*m_2))*dt;
-   v_2_z_curr = v_2_z_curr + (f_2_z_curr / (2*m_2))*dt;
+   v_2_x_curr = v_2_x_curr + ((f_2_x_curr + f_2_x_prev) / (2*m_2))*dt;
+   v_2_y_curr = v_2_y_curr + ((f_2_y_curr + f_2_y_prev) / (2*m_2))*dt;
+   v_2_z_curr = v_2_z_curr + ((f_2_z_curr + f_2_z_prev) / (2*m_2))*dt;
    
    v_1_curr = sqrt(v_1_x_curr^2 + v_1_y_curr^2 + v_1_z_curr^2);
    v_2_curr = sqrt(v_2_x_curr^2 + v_2_y_curr^2 + v_2_z_curr^2);
@@ -137,6 +144,15 @@ for i = 1:total_steps
    r_2_x_curr = r_2_x_curr + v_2_x_curr * dt + ((f_2_x_curr)/(2 * m_2))*dt*dt;
    r_2_y_curr = r_2_y_curr + v_2_y_curr * dt + ((f_2_y_curr)/(2 * m_2))*dt*dt;
    r_2_z_curr = r_2_z_curr + v_2_z_curr * dt + ((f_2_z_curr)/(2 * m_2))*dt*dt;
+   
+   %Update previous force for next loop
+   
+   f_1_x_prev = f_1_x_curr;
+   f_1_y_prev = f_1_y_curr;
+   f_1_z_prev = f_1_z_curr;
+   f_2_x_prev = f_2_x_curr;
+   f_2_y_prev = f_2_y_curr;
+   f_2_z_prev = f_2_z_curr; 
    
    %Calculate kinetic energy and convert from J to eV
    ke_1_curr = 0.5 * m_1 * v_1_curr * v_1_curr * 6.2415e18;
@@ -166,7 +182,13 @@ for i = 1:total_steps
    
    
 end
-   plot(result_energy_1)
-   hold
-   plot(result_energy_2)
+     plot(result_energy_1)
+     hold
+     plot(result_energy_2)
+%    plot3(result_position_1_x,result_position_1_y,result_position_1_z)
+%    hold
+%    plot3(result_position_2_x,result_position_2_y,result_position_2_z)
+%    xlabel('x')
+%    ylabel('y')
+%    zlabel('z')
 end
