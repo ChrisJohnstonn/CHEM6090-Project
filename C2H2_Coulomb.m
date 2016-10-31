@@ -120,7 +120,7 @@ for i = 1:Simulations_Amount
        
        %Ignoring Helium initially.
        h1_distance = zeros(1,Total_Atoms);
-       h1_distance(1,1) = (sqrt((h1_properties(3) - h1_properties(3))^2 + (h1_properties(4) - h1_properties(4))^2 + (h1_properties(5) - h1_properties(5))^2)); 
+       h1_distance(1,1) = 0; 
        h1_distance(1,2) = (sqrt((h1_properties(3) - c1_properties(3))^2 + (h1_properties(4) - c1_properties(4))^2 + (h1_properties(5) - c1_properties(5))^2)); 
        h1_distance(1,3) = (sqrt((h1_properties(3) - c2_properties(3))^2 + (h1_properties(4) - c2_properties(4))^2 + (h1_properties(5) - c2_properties(5))^2)); 
        h1_distance(1,4) = (sqrt((h1_properties(3) - h2_properties(3))^2 + (h1_properties(4) - h2_properties(4))^2 + (h1_properties(5) - h2_properties(5))^2));
@@ -129,18 +129,18 @@ for i = 1:Simulations_Amount
        h2_distance(1,1) = (sqrt((h2_properties(3) - h1_properties(3))^2 + (h2_properties(4) - h1_properties(4))^2 + (h2_properties(5) - h1_properties(5))^2));
        h2_distance(1,2) = (sqrt((h2_properties(3) - c1_properties(3))^2 + (h2_properties(4) - c1_properties(4))^2 + (h2_properties(5) - c1_properties(5))^2));
        h2_distance(1,3) = (sqrt((h2_properties(3) - c2_properties(3))^2 + (h2_properties(4) - c2_properties(4))^2 + (h2_properties(5) - c2_properties(5))^2));
-       h2_distance(1,4) = (sqrt((h2_properties(3) - h2_properties(3))^2 + (h2_properties(4) - h2_properties(4))^2 + (h2_properties(5) - h2_properties(5))^2));
+       h2_distance(1,4) = 0;
        
        c1_distance = zeros(1,Total_Atoms);
        c1_distance(1,1) = (sqrt((c1_properties(3) - h1_properties(3))^2 + (c1_properties(4) - h1_properties(4))^2 + (c1_properties(5) - h1_properties(5))^2));
-       c1_distance(1,2) = (sqrt((c1_properties(3) - c1_properties(3))^2 + (c1_properties(4) - c1_properties(4))^2 + (c1_properties(5) - c1_properties(5))^2));
+       c1_distance(1,2) = 0;
        c1_distance(1,3) = (sqrt((c1_properties(3) - c2_properties(3))^2 + (c1_properties(4) - c2_properties(4))^2 + (c1_properties(5) - c2_properties(5))^2));
        c1_distance(1,4) = (sqrt((c1_properties(3) - h2_properties(3))^2 + (c1_properties(4) - h2_properties(4))^2 + (c1_properties(5) - h2_properties(5))^2));
        
        c2_distance = zeros(1,Total_Atoms);
        c2_distance(1,1) = (sqrt((c2_properties(3) - h1_properties(3))^2 + (c2_properties(4) - h1_properties(4))^2 + (c2_properties(5) - h1_properties(5))^2));
        c2_distance(1,2) = (sqrt((c2_properties(3) - c1_properties(3))^2 + (c2_properties(4) - c1_properties(4))^2 + (c2_properties(5) - c1_properties(5))^2));
-       c2_distance(1,3) = (sqrt((c2_properties(3) - c2_properties(3))^2 + (c2_properties(4) - c2_properties(4))^2 + (c2_properties(5) - c2_properties(5))^2)); 
+       c2_distance(1,3) = 0; 
        c2_distance(1,4) = (sqrt((c2_properties(3) - h2_properties(3))^2 + (c2_properties(4) - h2_properties(4))^2 + (c2_properties(5) - h2_properties(5))^2));
                   
     end
