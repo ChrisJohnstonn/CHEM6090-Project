@@ -1,0 +1,154 @@
+
+%Ask user for data file and read it
+rawdata = uigetfile('.psi_asc','Please select a data file for C2H2');
+data = dlmread(rawdata);
+
+%Retrieve several properties from data file.
+Data_Length = size(data,1);
+Total_Atoms = data(1,1);
+He_Atoms = Total_Atoms - 2;
+Simulations_Amount = (Data_Length - 1)/(Total_Atoms + 1); %Each simulation has Total_Atoms + 1 lines.
+
+%Time Step
+dt = 1e-15; %In seconds
+Total_Steps = 1000;
+
+%Constants
+%Atomic Mass Unit
+amu = 1.6605e-27;
+
+%Meters in 1 Bohr radius
+bohr_to_meter = 5.2918e-11;
+
+%Masses
+
+m_c = mass('C') * amu;
+m_h = mass('H') * amu;
+m_he = mass('He') * amu;
+
+%C2H2 bond lengths
+r_CC = 1.20830e-10;
+r_CH = 1.05756e-10;
+
+%Coulomb's Constant
+k = 8.9876e09;
+%Elementary Charge
+q = 1.602e-19;
+%Charges on atoms
+q_c = 2*q;
+q_h = 1*q;
+q_he = 1*q;
+
+%Create Results Matrices
+result_intensity = zeros(Simulations_Amount,1);
+
+
+for i = 1:Simulations_Amount
+    
+    if mod(i,100) == 0
+        disp(i)
+    end
+   
+    %Setup up simulation
+    
+    %Populate intensity results
+    result_intensity(i) = data((i*(Total_Atoms+1)) - (He_Atoms + 1),1);
+    
+    %Calculate starting x,y,z positions.
+    %Results in data given by 2 pseudo-atoms.
+    %Calculate actual positions by finding midpoint and
+    %using bond lengths to determine coordinates.
+    %
+    %Pull pseudoatom coordinates from data and convert to meters from atomic units.
+    p1_coordinates = [data((i*(Total_Atoms+1)) - (He_Atoms),1)*bohr_to_meter ... 
+                      data((i*(Total_Atoms+1)) - (He_Atoms),2)*bohr_to_meter ...
+                      data((i*(Total_Atoms+1)) - (He_Atoms),3)*bohr_to_meter];
+    p2_coordinates = [data((i*(Total_Atoms+1)) - (He_Atoms - 1),1)*bohr_to_meter ... 
+                      data((i*(Total_Atoms+1)) - (He_Atoms - 1),2)*bohr_to_meter ...
+                      data((i*(Total_Atoms+1)) - (He_Atoms - 1),3)*bohr_to_meter];
+    %Find midpoint of 2 pseudo atoms.
+    midpoint_coordinates = [((p1_coordinates(1,1) + p2_coordinates(1,1))/2) ...
+                            ((p1_coordinates(1,2) + p2_coordinates(1,2))/2) ...
+                            ((p1_coordinates(1,3) + p2_coordinates(1,3))/2)];
+    
+    %Create and normalise vector between 2 pseudoatoms.
+    v = [((p1_coordinates(1,1) - p2_coordinates(1,1))) ...
+         ((p1_coordinates(1,2) - p2_coordinates(1,2))) ...
+         ((p1_coordinates(1,3) - p2_coordinates(1,3)))]; 
+    
+    u = v/norm(v);
+    
+    %Using normalised vector, midpoint and bond lengths, determine C2H2
+    %atom starting positions.
+    %A point distance d from point (x,y) has coordinates (x,y)+ d*u where u
+    %is the normalised vector along the line.
+    
+    h1_start = midpoint_coordinates + (0.5*r_CC + r_CH)*(u);
+    c1_start = midpoint_coordinates + (0.5*r_CC)*(u);
+    c2_start = midpoint_coordinates - (0.5*r_CC)*(u);
+    h2_start = midpoint_coordinates - (0.5*r_CC + r_CH)*(u);
+    
+    he_start = zeros(He_Atoms,3);
+    for j = 1:He_Atoms %Create matrix with each row being xyz coordinates of a He atom in angstroms.
+        he_start(j,1) = data((i*(Total_Atoms+1)) - (He_Atoms - (1+j)),1)*bohr_to_meter;
+        he_start(j,2) = data((i*(Total_Atoms+1)) - (He_Atoms - (1+j)),2)*bohr_to_meter;
+        he_start(j,3) = data((i*(Total_Atoms+1)) - (He_Atoms - (1+j)),3)*bohr_to_meter;
+    end   
+    
+    
+    %Create array to keep track of current properties through simulation
+    %mass|charge|r_x|r_y|r_z|v|v_x|v_y|v_z|f|f_x|f_y|f_z|f_x_o|f_y_o|f_z_o|ke
+    h1_properties = [m_h q_h h1_start(1,1) h1_start(1,2) h1_start(1,3) 0 0 0 0 0 0 0 0 0 0 0 0];
+    h2_properties = [m_h q_h h2_start(1,1) h2_start(1,2) h2_start(1,3) 0 0 0 0 0 0 0 0 0 0 0 0];
+    c1_properties = [m_c q_c c1_start(1,1) c1_start(1,2) c1_start(1,3) 0 0 0 0 0 0 0 0 0 0 0 0];
+    c2_properties = [m_c q_c c2_start(1,1) c2_start(1,2) c2_start(1,3) 0 0 0 0 0 0 0 0 0 0 0 0];
+    
+    he_properties = zeros(He_Atoms, 17);
+    for k = 1:He_Atoms
+        he_properties(k,:) = [m_he q_he he_start(k,1) he_start(k,2) he_start(k,3) 0 0 0 0 0 0 0 0 0 0 0 0];
+    end
+    
+    
+    for m = 1:Total_Steps
+       %Velocity Verlet Algorithm
+       %1. Given current position and velocity, compute forces.
+       %2. Update position
+       %3. Repeat
+       
+       %Distance Between Atoms
+       %Pythagoras 
+       
+       %Ignoring Helium initially.
+       h1_distance = zeros(1,Total_Atoms);
+       h1_distance(1,1) = (sqrt((h1_properties(3) - h1_properties(3))^2 + (h1_properties(4) - h1_properties(4))^2 + (h1_properties(5) - h1_properties(5))^2)); 
+       h1_distance(1,2) = (sqrt((h1_properties(3) - c1_properties(3))^2 + (h1_properties(4) - c1_properties(4))^2 + (h1_properties(5) - c1_properties(5))^2)); 
+       h1_distance(1,3) = (sqrt((h1_properties(3) - c2_properties(3))^2 + (h1_properties(4) - c2_properties(4))^2 + (h1_properties(5) - c2_properties(5))^2)); 
+       h1_distance(1,4) = (sqrt((h1_properties(3) - h2_properties(3))^2 + (h1_properties(4) - h2_properties(4))^2 + (h1_properties(5) - h2_properties(5))^2));
+       
+       h2_distance = zeros(1,Total_Atoms);
+       h2_distance(1,1) = (sqrt((h2_properties(3) - h1_properties(3))^2 + (h2_properties(4) - h1_properties(4))^2 + (h2_properties(5) - h1_properties(5))^2));
+       h2_distance(1,2) = (sqrt((h2_properties(3) - c1_properties(3))^2 + (h2_properties(4) - c1_properties(4))^2 + (h2_properties(5) - c1_properties(5))^2));
+       h2_distance(1,3) = (sqrt((h2_properties(3) - c2_properties(3))^2 + (h2_properties(4) - c2_properties(4))^2 + (h2_properties(5) - c2_properties(5))^2));
+       h2_distance(1,4) = (sqrt((h2_properties(3) - h2_properties(3))^2 + (h2_properties(4) - h2_properties(4))^2 + (h2_properties(5) - h2_properties(5))^2));
+       
+       c1_distance = zeros(1,Total_Atoms);
+       c1_distance(1,1) = (sqrt((c1_properties(3) - h1_properties(3))^2 + (c1_properties(4) - h1_properties(4))^2 + (c1_properties(5) - h1_properties(5))^2));
+       c1_distance(1,2) = (sqrt((c1_properties(3) - c1_properties(3))^2 + (c1_properties(4) - c1_properties(4))^2 + (c1_properties(5) - c1_properties(5))^2));
+       c1_distance(1,3) = (sqrt((c1_properties(3) - c2_properties(3))^2 + (c1_properties(4) - c2_properties(4))^2 + (c1_properties(5) - c2_properties(5))^2));
+       c1_distance(1,4) = (sqrt((c1_properties(3) - h2_properties(3))^2 + (c1_properties(4) - h2_properties(4))^2 + (c1_properties(5) - h2_properties(5))^2));
+       
+       c2_distance = zeros(1,Total_Atoms);
+       c2_distance(1,1) = (sqrt((c2_properties(3) - h1_properties(3))^2 + (c2_properties(4) - h1_properties(4))^2 + (c2_properties(5) - h1_properties(5))^2));
+       c2_distance(1,2) = (sqrt((c2_properties(3) - c1_properties(3))^2 + (c2_properties(4) - c1_properties(4))^2 + (c2_properties(5) - c1_properties(5))^2));
+       c2_distance(1,3) = (sqrt((c2_properties(3) - c2_properties(3))^2 + (c2_properties(4) - c2_properties(4))^2 + (c2_properties(5) - c2_properties(5))^2)); 
+       c2_distance(1,4) = (sqrt((c2_properties(3) - h2_properties(3))^2 + (c2_properties(4) - h2_properties(4))^2 + (c2_properties(5) - h2_properties(5))^2));
+                  
+    end
+   
+
+
+end
+
+
+
+
