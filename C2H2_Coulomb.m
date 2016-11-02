@@ -46,7 +46,7 @@ result_intensity = zeros(Simulations_Amount,1);
 for i = 1:Simulations_Amount
     
     if mod(i,100) == 0
-        disp(i)
+        disp(fprintf(string('Starting simulation ') + i + string(' of ') + Simulations_Amount));
     end
    
     %Setup up simulation
@@ -80,7 +80,7 @@ for i = 1:Simulations_Amount
     
     %Using normalised vector, midpoint and bond lengths, determine C2H2
     %atom starting positions.
-    %A point distance d from point (x,y) has coordinates (x,y)+ d*u where u
+    %A point distance d from point (x,y,z) has coordinates (x,y,z)+ d*u where u
     %is the normalised vector along the line.
     
     h1_start = midpoint_coordinates + (0.5*r_CC + r_CH)*(u);
@@ -142,7 +142,173 @@ for i = 1:Simulations_Amount
        c2_distance(1,2) = (sqrt((c2_properties(3) - c1_properties(3))^2 + (c2_properties(4) - c1_properties(4))^2 + (c2_properties(5) - c1_properties(5))^2));
        c2_distance(1,3) = 0; 
        c2_distance(1,4) = (sqrt((c2_properties(3) - h2_properties(3))^2 + (c2_properties(4) - h2_properties(4))^2 + (c2_properties(5) - h2_properties(5))^2));
-                  
+       
+       he_distance = zeros(He_Atoms,Total_Atoms); 
+       
+       for n = 1:He_Atoms
+           h1_distance(1,n+4) = (sqrt((h1_properties(3) - he_properties(n,3))^2 + (h1_properties(4) - he_properties(n,4))^2 + (h1_properties(5) - he_properties(n,5))^2));
+           h2_distance(1,n+4) = (sqrt((h2_properties(3) - he_properties(n,3))^2 + (h2_properties(4) - he_properties(n,4))^2 + (h2_properties(5) - he_properties(n,5))^2));
+           c1_distance(1,n+4) = (sqrt((c1_properties(3) - he_properties(n,3))^2 + (c1_properties(4) - he_properties(n,4))^2 + (c1_properties(5) - he_properties(n,5))^2));
+           c2_distance(1,n+4) = (sqrt((c2_properties(3) - he_properties(n,3))^2 + (c2_properties(4) - he_properties(n,4))^2 + (c2_properties(5) - he_properties(n,5))^2)); 
+           
+           he_distance(n,1) = (sqrt((he_properties(n,3) - h1_properties(3))^2 + (he_properties(n,4) - h1_properties(4))^2 + (he_properties(n,5) - h1_properties(5))^2));
+           he_distance(n,2) = (sqrt((he_properties(n,3) - c1_properties(3))^2 + (he_properties(n,4) - c1_properties(4))^2 + (he_properties(n,5) - c1_properties(5))^2)); 
+           he_distance(n,3) = (sqrt((he_properties(n,3) - c2_properties(3))^2 + (he_properties(n,4) - c2_properties(4))^2 + (he_properties(n,5) - c2_properties(5))^2)); 
+           he_distance(n,4) = (sqrt((he_properties(n,3) - h2_properties(3))^2 + (he_properties(n,4) - h2_properties(4))^2 + (he_properties(n,5) - h2_properties(5))^2));
+           
+           for o = 1:He_Atoms    
+                he_distance(o,n+4) = (sqrt((he_properties(o,3) - he_properties(n,3))^2 + (he_properties(o,4) - he_properties(n,4))^2 + (he_properties(o,5) - he_properties(n,5))^2));
+           end
+           
+       end
+        
+       %Force Between Atoms
+       %Coulombic Forces -> F = (k*q1*q2)/(r^2)
+       h1_forces = zeros(1,Total_Atoms);
+       h1_forces(1,1) = 0;
+       h1_forces(1,2) = (k * h1_properties(2) * c1_properties(2))/(h1_distance(1,2)^2);
+       h1_forces(1,3) = (k * h1_properties(2) * c2_properties(2))/(h1_distance(1,3)^2);
+       h1_forces(1,4) = (k * h1_properties(2) * h2_properties(2))/(h1_distance(1,4)^2);
+       
+       h2_forces = zeros(1,Total_Atoms);
+       h2_forces(1,1) = (k * h2_properties(2) * h1_properties(2))/(h2_distance(1,1)^2);
+       h2_forces(1,2) = (k * h2_properties(2) * c1_properties(2))/(h2_distance(1,2)^2);
+       h2_forces(1,3) = (k * h2_properties(2) * c2_properties(2))/(h2_distance(1,3)^2);
+       h2_forces(1,4) = 0;
+       
+       c1_forces = zeros(1,Total_Atoms);
+       c1_forces(1,1) = (k * c1_properties(2) * h1_properties(2))/(c1_distance(1,1)^2);
+       c1_forces(1,2) = 0;
+       c1_forces(1,3) = (k * c1_properties(2) * c2_properties(2))/(c1_distance(1,3)^2);
+       c1_forces(1,4) = (k * c1_properties(2) * h2_properties(2))/(c1_distance(1,4)^2);
+       
+       c2_forces = zeros(1,Total_Atoms);
+       c2_forces(1,1) = (k * c2_properties(2) * h1_properties(2))/(c2_distance(1,1)^2);
+       c2_forces(1,2) = (k * c2_properties(2) * c1_properties(2))/(c2_distance(1,2)^2);
+       c2_forces(1,3) = 0;
+       c2_forces(1,4) = (k * c2_properties(2) * h2_properties(2))/(c2_distance(1,4)^2);
+       
+       he_forces = zeros(He_Atoms,Total_Atoms);
+       for l = 1:He_Atoms
+           h1_forces(1,l+4) = (k * h1_properties(2) * he_properties(l,2))/(h1_distance(1,l+4));
+           h2_forces(1,l+4) = (k * h2_properties(2) * he_properties(l,2))/(h2_distance(1,l+4));
+           c1_forces(1,l+4) = (k * c1_properties(2) * he_properties(l,2))/(c1_distance(1,l+4));
+           c2_forces(1,l+4) = (k * c2_properties(2) * he_properties(l,2))/(c2_distance(1,l+4));
+           
+           he_forces(l,1) = (k * he_properties(l,2) * h1_properties(2))/(he_distance(l,1)^2);
+           he_forces(l,2) = (k * he_properties(l,2) * c1_properties(2))/(he_distance(l,2)^2);
+           he_forces(l,3) = (k * he_properties(l,2) * c2_properties(2))/(he_distance(l,3)^2);
+           he_forces(l,4) = (k * he_properties(l,2) * h2_properties(2))/(he_distance(l,4)^2);
+           
+           for p = 1:He_Atoms
+               if he_distance(p,l+4) > 0
+                    he_forces(p,l+4) = (k * he_properties(p,2) * he_properties(l,2))/(he_distance(p,l+4)^2);
+               end
+           end
+       
+       end
+       
+       %Split Forces into x,y,z and total.
+       %x,y,z
+       for p = 1:3 %switches through x, y and z.
+           h1_properties(10+p) = (h1_forces(1,2) * ((h1_properties(2+p) - c1_properties(2+p))/(h1_distance(1,2)))) + ...
+                               (h1_forces(1,3) * ((h1_properties(2+p) - c2_properties(2+p))/(h1_distance(1,3)))) + ...
+                               (h1_forces(1,4) * ((h1_properties(2+p) - h2_properties(2+p))/(h1_distance(1,4))));
+
+           h2_properties(10+p) = (h2_forces(1,1) * ((h2_properties(2+p) - h1_properties(2+p))/(h2_distance(1,1)))) + ...
+                               (h2_forces(1,2) * ((h2_properties(2+p) - c1_properties(2+p))/(h2_distance(1,2)))) + ...
+                               (h2_forces(1,3) * ((h2_properties(2+p) - c2_properties(2+p))/(h2_distance(1,3))));  
+
+           c1_properties(10+p) = (c1_forces(1,1) * ((c1_properties(2+p) - h1_properties(2+p))/(c1_distance(1,1)))) + ...
+                               (c1_forces(1,3) * ((c1_properties(2+p) - c2_properties(2+p))/(c1_distance(1,3)))) + ...
+                               (c1_forces(1,4) * ((c1_properties(2+p) - h2_properties(2+p))/(c1_distance(1,4))));
+
+           c2_properties(10+p) = (c2_forces(1,1) * ((c2_properties(2+p) - h1_properties(2+p))/(c2_distance(1,1)))) + ...
+                               (c2_forces(1,2) * ((c2_properties(2+p) - c1_properties(2+p))/(c2_distance(1,2)))) + ...
+                               (c2_forces(1,4) * ((c2_properties(2+p) - h2_properties(2+p))/(c2_distance(1,4))));                       
+
+           for q = 1:He_Atoms %C2H2 - He interactions
+                h1_properties(10+p) = h1_properties(10+p) + ...
+                                    (h1_forces(1,q+4) * ((h1_properties(2+p) - he_properties(q,2+p))/(h1_distance(1,q+4))));
+                h2_properties(10+p) = h2_properties(10+p) + ...
+                                    (h2_forces(1,q+4) * ((h2_properties(2+p) - he_properties(q,2+p))/(h2_distance(1,q+4))));
+                c1_properties(10+p) = c1_properties(10+p) + ...
+                                    (c1_forces(1,q+4) * ((c1_properties(2+p) - he_properties(q,2+p))/(c1_distance(1,q+4))));
+                c2_properties(10+p) = c2_properties(10+p) + ...
+                                    (c2_forces(1,q+4) * ((c2_properties(2+p) - he_properties(q,2+p))/(c2_distance(1,q+4))));       
+
+                he_properties(q,10+p) =  (he_forces(q,1) * ((he_properties(q,2+p) - h1_properties(2+p))/(he_distance(q,1)))) + ...
+                                       (he_forces(q,2) * ((he_properties(q,2+p) - c1_properties(2+p))/(he_distance(q,2)))) + ...
+                                       (he_forces(q,3) * ((he_properties(q,2+p) - c2_properties(2+p))/(he_distance(q,3)))) + ...
+                                       (he_forces(q,4) * ((he_properties(q,2+p) - h2_properties(2+p))/(he_distance(q,4))));
+
+                for b = 1:He_Atoms %He - He interactions.
+                    if he_distance(q,b+4) > 0
+                        he_properties(q,10+p) = he_properties(q,10+p) + ...
+                                          (he_forces(q,b+4) * ((he_properties(q,2+p) - he_properties(b,2+p))/(he_distance(q,b+4))));
+                    end
+
+                end
+
+           end
+           
+       end
+       
+       %Calculating x,y,z velocities
+       % v(new) = v(old) + ((f(old) + f(curr))/2m)*dt
+       
+       for p = 1:3 %switches through x,y and z.
+           
+       h1_properties(6+p) = h1_properties(6+p) + ((h1_properties(13+p) + h1_properties(10+p))/(2*m_h))*dt;
+       c1_properties(6+p) = c1_properties(6+p) + ((c1_properties(13+p) + c1_properties(10+p))/(2*m_c))*dt;
+       c2_properties(6+p) = c2_properties(6+p) + ((c2_properties(13+p) + c2_properties(10+p))/(2*m_c))*dt;
+       h2_properties(6+p) = h2_properties(6+p) + ((h2_properties(13+p) + h2_properties(10+p))/(2*m_h))*dt;
+       
+           for j = 1:He_Atoms
+                he_properties(j,6+p) = he_properties(j,6+p) + ((he_properties(j,13+p) + he_properties(j,10+p))/(2*m_he))*dt;
+           end
+           
+       end
+       
+       %Update total velocity.
+       h1_properties(6) = sqrt((h1_properties(7))^2 + (h1_properties(8))^2 + (h1_properties(9)))^2;
+       c1_properties(6) = sqrt((c1_properties(7))^2 + (c1_properties(8))^2 + (c1_properties(9)))^2;
+       c2_properties(6) = sqrt((c2_properties(7))^2 + (c2_properties(8))^2 + (c2_properties(9)))^2;
+       h2_properties(6) = sqrt((h2_properties(7))^2 + (h2_properties(8))^2 + (h2_properties(9)))^2;
+       
+       for b = 1:He_Atoms
+            he_properties(b,6) = sqrt((he_properties(b,7))^2 + (he_properties(b,8))^2 + (he_properties(b,9)))^2;
+       end
+       
+       %Positions
+       %New Positions
+       % r(new) = r(old) + v(t)*dt + (f(t)/2m) * dt * dt
+       
+       for p = 1:3 %switch through x,y and z.
+           h1_properties(2+p) = h1_properties(2+p) + h1_properties(6+p) * dt + ((h1_properties(10+p)) / (2*m_h))*dt*dt;
+           c1_properties(2+p) = c1_properties(2+p) + c1_properties(6+p) * dt + ((c1_properties(10+p)) / (2*m_c))*dt*dt;
+           c2_properties(2+p) = c2_properties(2+p) + c2_properties(6+p) * dt + ((c2_properties(10+p)) / (2*m_c))*dt*dt;
+           h2_properties(2+p) = h2_properties(2+p) + h2_properties(6+p) * dt + ((h2_properties(10+p)) / (2*m_h))*dt*dt;
+ 
+           for b = 1:He_Atoms
+                he_properties(b,2+p) = he_properties(b,2+p) + he_properties(b,6+p) * dt + ((he_properties(b,10+p)) / (2*m_he))*dt*dt;
+           end
+       end
+       
+       %Update old forces for next loop
+       
+       for p = 1:3 %switch through x,y and z.
+           
+           h1_properties(13+p) = h1_properties(10+p);
+           c1_properties(13+p) = c1_properties(10+p);
+           c2_properties(13+p) = c2_properties(10+p);
+           h2_properties(13+p) = h2_properties(10+p);
+
+           for b = 1:He_Atoms
+                he_properties(b,13+p) = he_properties(b,10+p);
+           end
+       end
+       
     end
    
 
