@@ -7,8 +7,8 @@ data = dlmread(rawdata);
 Data_Length = size(data,1);
 Total_Atoms = data(1,1);
 He_Atoms = Total_Atoms - 2;
-%Simulations_Amount = (Data_Length - 1)/(Total_Atoms + 1); %Each simulation has Total_Atoms + 1 lines.
-Simulations_Amount = 1;
+Simulations_Amount = (Data_Length - 1)/(Total_Atoms + 1); %Each simulation has Total_Atoms + 1 lines.
+%Simulations_Amount = 1;
 
 %Time Step
 dt = 1e-15; %In seconds
@@ -43,9 +43,9 @@ q_he = 1*q;
 %Create Results Matrices
 result_intensity = zeros(Simulations_Amount,1);
 
-result_force_c1_x = zeros(Total_Steps, Simulations_Amount);
-result_force_c2_x = zeros(Total_Steps, Simulations_Amount);
-result_force_c3_x = zeros(Total_Steps, Simulations_Amount);
+%result_test1 = zeros(Total_Steps, Simulations_Amount);
+%result_test2 = zeros(Total_Steps, Simulations_Amount);
+%result_test3 = zeros(Total_Steps, Simulations_Amount);
 
 for i = 1:Simulations_Amount
     
@@ -194,10 +194,10 @@ for i = 1:Simulations_Amount
        
        he_forces = zeros(He_Atoms,Total_Atoms);
        for l = 1:He_Atoms
-           h1_forces(1,l+4) = (k * h1_properties(2) * he_properties(l,2))/(h1_distance(1,l+4));
-           h2_forces(1,l+4) = (k * h2_properties(2) * he_properties(l,2))/(h2_distance(1,l+4));
-           c1_forces(1,l+4) = (k * c1_properties(2) * he_properties(l,2))/(c1_distance(1,l+4));
-           c2_forces(1,l+4) = (k * c2_properties(2) * he_properties(l,2))/(c2_distance(1,l+4));
+           h1_forces(1,l+4) = (k * h1_properties(2) * he_properties(l,2))/(h1_distance(1,l+4)^2);
+           h2_forces(1,l+4) = (k * h2_properties(2) * he_properties(l,2))/(h2_distance(1,l+4)^2);
+           c1_forces(1,l+4) = (k * c1_properties(2) * he_properties(l,2))/(c1_distance(1,l+4)^2);
+           c2_forces(1,l+4) = (k * c2_properties(2) * he_properties(l,2))/(c2_distance(1,l+4)^2);
            
            he_forces(l,1) = (k * he_properties(l,2) * h1_properties(2))/(he_distance(l,1)^2);
            he_forces(l,2) = (k * he_properties(l,2) * c1_properties(2))/(he_distance(l,2)^2);
@@ -314,6 +314,9 @@ for i = 1:Simulations_Amount
            end
        end
        
+       %result_test1(m) = h1_properties(6);
+       %result_test2(m) = c1_properties(6);
+       %result_test3(m) = he_properties(1,6);
     end
    
 
