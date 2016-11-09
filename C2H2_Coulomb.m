@@ -348,8 +348,10 @@ for i = 1:Simulations_Amount
     result_final_velocity_vector(i,1:3) = c1_vel;
     result_final_velocity_vector(i,4:6) = c2_vel;
     
+ 
+    
 end
 
-
+Velocity_Resolve(result_initial_vector, result_final_velocity_vector,result_intensity);
 
 
