@@ -42,10 +42,11 @@ q_he = 1*q;
 
 %Create Results Matrices
 result_intensity = zeros(Simulations_Amount,1);
+result_initial_vector = zeros(Simulations_Amount,3);
+result_final_velocity_vector = zeros(Simulations_Amount,6);
 
-%result_test1 = zeros(Total_Steps, Simulations_Amount);
-%result_test2 = zeros(Total_Steps, Simulations_Amount);
-%result_test3 = zeros(Total_Steps, Simulations_Amount);
+Total_Kinetic = 0;
+
 
 for i = 1:Simulations_Amount
     
@@ -275,13 +276,13 @@ for i = 1:Simulations_Amount
        end
        
        %Update total velocity.
-       h1_properties(6) = sqrt((h1_properties(7))^2 + (h1_properties(8))^2 + (h1_properties(9)))^2;
-       c1_properties(6) = sqrt((c1_properties(7))^2 + (c1_properties(8))^2 + (c1_properties(9)))^2;
-       c2_properties(6) = sqrt((c2_properties(7))^2 + (c2_properties(8))^2 + (c2_properties(9)))^2;
-       h2_properties(6) = sqrt((h2_properties(7))^2 + (h2_properties(8))^2 + (h2_properties(9)))^2;
+       h1_properties(6) = sqrt(h1_properties(7)^2 + h1_properties(8)^2 + h1_properties(9)^2);
+       c1_properties(6) = sqrt(c1_properties(7)^2 + c1_properties(8)^2 + c1_properties(9)^2);
+       c2_properties(6) = sqrt(c2_properties(7)^2 + c2_properties(8)^2 + c2_properties(9)^2);
+       h2_properties(6) = sqrt(h2_properties(7)^2 + h2_properties(8)^2 + h2_properties(9)^2);
        
        for b = 1:He_Atoms
-            he_properties(b,6) = sqrt((he_properties(b,7))^2 + (he_properties(b,8))^2 + (he_properties(b,9)))^2;
+            he_properties(b,6) = sqrt((he_properties(b,7))^2 + (he_properties(b,8))^2 + (he_properties(b,9))^2);
        end
        
        %Positions
@@ -314,13 +315,39 @@ for i = 1:Simulations_Amount
            end
        end
        
+       %calculate kinetic energy and convert from J to eV
+       h1_properties(17) = 0.5 * h1_properties(1) * h1_properties(6) * h1_properties(6) * 6.2415e18;
+       c1_properties(17) = 0.5 * c1_properties(1) * c1_properties(6) * c1_properties(6) * 6.2415e18;
+       c2_properties(17) = 0.5 * c2_properties(1) * c2_properties(6) * c2_properties(6) * 6.2415e18;
+       h2_properties(17) = 0.5 * h2_properties(1) * h2_properties(6) * h2_properties(6) * 6.2415e18;
+       
+       for b = 1:He_Atoms
+          he_properties(b,17) = 0.5 * he_properties(b,1) * he_properties(b,6) * he_properties(b,6) * 6.2415e18; 
+       end
+       
        %result_test1(m) = h1_properties(6);
        %result_test2(m) = c1_properties(6);
        %result_test3(m) = he_properties(1,6);
     end
-   
-
-
+    
+    %Calculate KE and convert to eV
+    Total_Kinetic = h1_properties(17) + c1_properties(17) + c2_properties(17) + h2_properties(17);
+    for b = 1:He_Atoms
+       Total_Kinetic = Total_Kinetic + he_properties(b,17); 
+    end
+    
+    %populate results
+    result_initial_vector(i,:) = v;
+    
+    c1_vel = [c1_properties(7) ...
+              c1_properties(8) ...
+              c1_properties(9)];
+    c2_vel = [c2_properties(7) ...
+              c2_properties(8) ...
+              c2_properties(9)];
+    result_final_velocity_vector(i,1:3) = c1_vel;
+    result_final_velocity_vector(i,4:6) = c2_vel;
+    
 end
 
 

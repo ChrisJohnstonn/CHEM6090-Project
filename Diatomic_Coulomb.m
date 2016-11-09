@@ -180,11 +180,13 @@ for i = 1:total_steps
    result_energy_1(i) = ke_1_curr;
    result_energy_2(i) = ke_2_curr;
    
-   
+   %disp(string('v1: ') + v_1_curr);
+   %disp(string('v2: ') + v_2_curr);
 end
-     plot(result_energy_1)
-     hold
-     plot(result_energy_2)
+     %plot(result_velocity_1_z)
+     %hold
+     %plot(result_velocity_2_z)
+     %disp(m_1);
 %    plot3(result_position_1_x,result_position_1_y,result_position_1_z)
 %    hold
 %    plot3(result_position_2_x,result_position_2_y,result_position_2_z)
