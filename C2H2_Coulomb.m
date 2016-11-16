@@ -352,6 +352,6 @@ for i = 1:Simulations_Amount
     
 end
 
-Velocity_Resolve(result_initial_vector, result_final_velocity_vector,result_intensity);
+Velocity_Resolve(result_initial_vector, result_final_velocity_vector);
 
 
