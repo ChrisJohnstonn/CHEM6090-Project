@@ -1,9 +1,10 @@
-function Velocity_Resolve(init_vector,final_vel_vector)
+function [result_c1_xyz,result_c2_xyz] = Velocity_Resolve(init_vector,final_vel_vector)
 
 Simulations_Amount = length(final_vel_vector);
 
 Rotation_Amount = 2*pi;
 Rotation_Steps = 30;
+
 
 result_c1_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
 result_c2_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
