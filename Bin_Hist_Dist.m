@@ -77,21 +77,25 @@ end
 
 
 imagesc(x_axis,z_axis,result_histogram_matrix);
+xlabel('x velocity');
+ylabel('z velocity');
 set(gca,'YDir','normal')
 figure
 bar(result_dist_matrix(:,1),result_dist_matrix(:,2),'BarWidth',1);
-figure
-
-% probplot('weibull',result_dist_matrix([91:280],2));
-% pd1 = fitdist(result_dist_matrix(:,2),'weibull');
+xlabel('xz velocity');
+ylabel('intensity');
 % figure
-% probplot('ev',result_dist_matrix([91:280],2));
-% pd2 = fitdist(result_dist_matrix([91:280],2),'ev');
+% 
+% probplot('weibull',result_dist_matrix([35:305],2));
+% pd1 = fitdist(result_dist_matrix([35:305],2),'weibull');
 % figure
-% probplot('normal',result_dist_matrix([91:280],2));
-% pd3 = fitdist(result_dist_matrix([91:280],2),'normal');
+% probplot('ev',result_dist_matrix([35:305],2));
+% pd2 = fitdist(result_dist_matrix([35:305],2),'ev');
 % figure
-% probplot('lognormal',result_dist_matrix([91:280],2));
-% pd4 = fitdist(result_dist_matrix([91:280],2),'lognormal');
-
+% probplot('normal',result_dist_matrix([35:305],2));
+% pd3 = fitdist(result_dist_matrix([35:305],2),'normal');
+% figure
+% probplot('lognormal',result_dist_matrix([35:305],2));
+% pd4 = fitdist(result_dist_matrix([35:305],2),'lognormal');
+% 
 
