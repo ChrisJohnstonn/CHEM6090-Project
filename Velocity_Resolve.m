@@ -1,9 +1,9 @@
-function [result_c1_xyz,result_c2_xyz] = Velocity_Resolve(init_vector,final_vel_vector)
+function [result_c1_xyz,result_c2_xyz,Rotation_Steps] = Velocity_Resolve(init_vector,final_vel_vector)
 
 Simulations_Amount = length(final_vel_vector);
 
 Rotation_Amount = 2*pi;
-Rotation_Steps = 30;
+Rotation_Steps = 300;
 
 
 result_c1_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
@@ -13,6 +13,9 @@ result_c2_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
 
     for i = 1:Simulations_Amount
         
+        if mod(i,100) == 0
+            disp(fprintf(string('Resolving Velocity of Simulation ') + i + string(' of ') + Simulations_Amount));
+        end
         v1 = init_vector(i,:); %Initial Direction Vector
         v2_1 = final_vel_vector(i,1:3); %End Velocity Vector for c1
         v2_2 = final_vel_vector(i,4:6); %End Velocity Vector for c2
@@ -90,9 +93,9 @@ result_c2_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
     
     %3D
     
-    scatter3(result_c1_xyz(:,1),result_c1_xyz(:,2),result_c1_xyz(:,3),1);
-    hold all
-    scatter3(result_c2_xyz(:,1),result_c2_xyz(:,2),result_c2_xyz(:,3),1);
+%     scatter3(result_c1_xyz(:,1),result_c1_xyz(:,2),result_c1_xyz(:,3),1);
+%     hold all
+%     scatter3(result_c2_xyz(:,1),result_c2_xyz(:,2),result_c2_xyz(:,3),1);
     
     %2D - in plane?
     
@@ -100,8 +103,8 @@ result_c2_xyz = zeros(Simulations_Amount*Rotation_Steps,3);
 %     hold all
 %     scatter(result_c2_xyz(:,1),result_c2_xyz(:,3),1);
     
-    xlabel('x vel')
-    ylabel('y vel')
-    zlabel('z vel')
+%     xlabel('x vel')
+%     ylabel('y vel')
+%     zlabel('z vel')
 end
 

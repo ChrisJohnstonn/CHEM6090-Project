@@ -352,6 +352,6 @@ for i = 1:Simulations_Amount
     
 end
 
-[c1_xyz,c2_xyz] = Velocity_Resolve(result_initial_vector, result_final_velocity_vector);
+[c1_xyz,c2_xyz,rotation] = Velocity_Resolve(result_initial_vector, result_final_velocity_vector);
 
 
