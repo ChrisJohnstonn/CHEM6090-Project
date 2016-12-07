@@ -39,31 +39,75 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-c_xz_ke = zeros(length(c_xyz),1);
+c_xz_vel = zeros(length(c_xyz),1);
+c_xz_energy = zeros(length(c_xyz),1);
+c_xz_angles = zeros(length(c_xyz),1);
 
 for i = 1:length(c_xyz)
     %determine velocity in x-z plane
-    c_xz_ke(i) = sqrt(c_xyz(i,1)^2 + c_xyz(i,3)^2);
+    c_xz_vel(i) = sqrt(c_xyz(i,1)^2 + c_xyz(i,3)^2);
+    %convert to energy and convert to eV
+    c_xz_energy(i) = 0.5 * m_c * c_xz_vel(i) * c_xz_vel(i) * 6.2415e18;
+    %angle between velocity xz vector and x axis
+    c_xz_angles(i) = atan2(c_xyz(i,1),c_xyz(i,3))*180/pi;
 end
-c_ke_max = max(c_xz_ke);
-c_ke_min = min(c_xz_ke);
-c_ke_diff = 1.2*c_ke_max - 0.8*c_ke_min;
-c_ke_steps = c_ke_diff / bins;
+c_vel_max = max(c_xz_vel);
+c_vel_min = min(c_xz_vel);
+c_vel_diff = 1.2*c_vel_max - 0.8*c_vel_min;
+c_vel_steps = c_vel_diff / bins;
 
-x_ke_axis = (0.8*c_ke_min:c_ke_steps:1.2*c_ke_max);
+x_vel_axis = (0.8*c_vel_min:c_vel_steps:1.2*c_vel_max);
 
-result_dist_matrix = zeros(length(x_ke_axis),2);
-result_dist_matrix(:,1) = x_ke_axis;
+result_dist_matrix = zeros(length(x_vel_axis),2);
+result_dist_matrix(:,1) = x_vel_axis;
 
-for i = 1:length(c_xz_ke)
-    ke_x_bin = ceil( ( c_xz_ke(i) - x_ke_axis(1) ) / c_ke_steps );
-%     
-%     disp(ke_x_bin)
-%     disp(i)
+
+
+c_energy_min = min(c_xz_energy);
+c_energy_max = max(c_xz_energy);
+c_energy_diff = 1.2*c_energy_max - 0.8*c_energy_min;
+c_energy_steps = c_energy_diff / bins;
+
+x_energy_axis = (0.8*c_energy_min:c_energy_steps:1.2*c_energy_max);
+
+result_dist_matrix_energy = zeros(length(x_energy_axis),2);
+result_dist_matrix_energy(:,1) = x_energy_axis;
+
+
+
+c_angles_min = -180;
+c_angles_max = 180;
+c_angles_diff = c_angles_max - c_angles_min;
+c_angles_steps = c_angles_diff / bins;
+
+x_angles_axis = (c_angles_min:c_angles_steps:c_angles_max);
+
+result_dist_matrix_angles = zeros(length(x_angles_axis),2);
+result_dist_matrix_angles(:,1) = x_angles_axis;
+
+for i = 1:length(c_xz_vel)
+    vel_x_bin = ceil( ( c_xz_vel(i) - x_vel_axis(1) ) / c_vel_steps );
+
     if i <= length(c_xyz)/2
-        result_dist_matrix(ke_x_bin,2) = result_dist_matrix(ke_x_bin,2) + result_intensity(ceil(i/rotation),1);
+        result_dist_matrix(vel_x_bin,2) = result_dist_matrix(vel_x_bin,2) + result_intensity(ceil(i/rotation),1);
     else
-        result_dist_matrix(ke_x_bin,2) = result_dist_matrix(ke_x_bin,2) + result_intensity(ceil((i-(length(c_xyz)/2))/rotation),1);
+        result_dist_matrix(vel_x_bin,2) = result_dist_matrix(vel_x_bin,2) + result_intensity(ceil((i-(length(c_xyz)/2))/rotation),1);
+    end
+    
+    energy_x_bin = ceil( ( c_xz_energy(i) - x_energy_axis(1) ) / c_energy_steps );
+    
+    if i <= length(c_xyz)/2
+        result_dist_matrix_energy(energy_x_bin,2) = result_dist_matrix_energy(energy_x_bin,2) + result_intensity(ceil(i/rotation),1);
+    else
+        result_dist_matrix_energy(energy_x_bin,2) = result_dist_matrix_energy(energy_x_bin,2) + result_intensity(ceil((i-(length(c_xyz)/2))/rotation),1);
+    end
+    
+    angles_x_bin = ceil( ( c_xz_angles(i) - x_angles_axis(1) ) / c_angles_steps );
+    
+    if i <= length(c_xyz)/2
+        result_dist_matrix_angles(angles_x_bin,2) = result_dist_matrix_angles(angles_x_bin,2) + result_intensity(ceil(i/rotation),1);
+    else
+        result_dist_matrix_angles(angles_x_bin,2) = result_dist_matrix_angles(angles_x_bin,2) + result_intensity(ceil((i-(length(c_xyz)/2))/rotation),1);
     end
 end
 
@@ -80,9 +124,23 @@ imagesc(x_axis,z_axis,result_histogram_matrix);
 xlabel('x velocity');
 ylabel('z velocity');
 set(gca,'YDir','normal')
+
 figure
+
 bar(result_dist_matrix(:,1),result_dist_matrix(:,2),'BarWidth',1);
 xlabel('xz velocity');
+ylabel('intensity');
+
+figure
+
+bar(result_dist_matrix_energy(:,1),result_dist_matrix_energy(:,2),'BarWidth',1);
+xlabel('xz energy / eV');
+ylabel('intensity');
+
+figure
+
+bar(result_dist_matrix_angles(:,1),result_dist_matrix_angles(:,2),'BarWidth',1);
+xlabel('Angle between Velocity Vector and positive z axis.');
 ylabel('intensity');
 % figure
 % 
@@ -92,7 +150,7 @@ ylabel('intensity');
 % probplot('ev',result_dist_matrix([35:305],2));
 % pd2 = fitdist(result_dist_matrix([35:305],2),'ev');
 % figure
-% probplot('normal',result_dist_matrix([35:305],2));
+% probplot('normal',result_dist_matrix_angles([149:352],2));
 % pd3 = fitdist(result_dist_matrix([35:305],2),'normal');
 % figure
 % probplot('lognormal',result_dist_matrix([35:305],2));
