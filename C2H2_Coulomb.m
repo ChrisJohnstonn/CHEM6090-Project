@@ -44,6 +44,7 @@ q_he = 1*q;
 result_intensity = zeros(Simulations_Amount,1);
 result_initial_vector = zeros(Simulations_Amount,3);
 result_final_velocity_vector = zeros(Simulations_Amount,6);
+result_initial_positions = zeros(Simulations_Amount, (He_Atoms + 4)*3);
 
 Total_Kinetic = 0;
 
@@ -347,6 +348,11 @@ for i = 1:Simulations_Amount
               c2_properties(9)];
     result_final_velocity_vector(i,1:3) = c1_vel;
     result_final_velocity_vector(i,4:6) = c2_vel;
+    
+    result_initial_positions(i,1:12) = [h1_start, c1_start, c2_start, h2_start];
+    for j = 1:He_Atoms
+       result_initial_positions(i,10+3*j:12+3*j) = he_start(j,1:3); 
+    end
     
  
     
