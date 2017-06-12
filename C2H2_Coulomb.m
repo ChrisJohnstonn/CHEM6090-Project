@@ -36,7 +36,7 @@ k = 8.9876e09;
 %Elementary Charge
 q = 1.602e-19;
 %Charges on atoms
-q_c = 2*q;
+q_c = 1*q;
 q_h = 1*q;
 q_he = 1*q;
 
