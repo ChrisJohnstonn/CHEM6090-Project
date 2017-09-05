@@ -82,8 +82,15 @@ for i = 1:Filtered_Simulations
     %determine which bin simulation should go into
     
     %in plane
-    % xbin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),1) - mid_he_x_axis(1)) / mid_he_steps(1));
-    % ybin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),2) - mid_he_y_axis(1)) / mid_he_steps(2));
+%    xbin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),1) - mid_he_x_axis(1)) / mid_he_steps(1));
+%    if result_flip(i) == 1
+%       if xbin > (bins/2)
+%           xbin = xbin - 2*(xbin-(bins/2));
+%       else
+%           xbin = xbin + 2*((bins/2)-xbin);
+%       end              
+%    end
+%    ybin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),2) - mid_he_y_axis(1)) / mid_he_steps(2));
     
     %out of plane
     if He_Atoms > 1
