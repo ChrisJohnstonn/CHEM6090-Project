@@ -7,7 +7,7 @@ result_c_start_all = zeros(Simulations_Amount,6);
 
 for i = 1:length(result_filtered_simulations)
    
-   simulation = result_filtered_simulations(i,1);
+   simulation = result_filtered_simulations(i,1)*Rotation_Steps;
    result_c_velocity(i,1) = sqrt(result_c1_xyz(simulation,1)^2 + result_c1_xyz(simulation,2)^2 + result_c1_xyz(simulation,3)^2);
    result_c_velocity(i,2) = sqrt(result_c2_xyz(simulation,1)^2 + result_c2_xyz(simulation,2)^2 + result_c2_xyz(simulation,3)^2);
    
@@ -78,31 +78,37 @@ end
 
 result_initial_histogram_matrix = zeros(bins, bins);
 
-for i = 1:Filtered_Simulations
+
+for i = 1:length(result_filtered_simulations)
+    
+    midpoint_x_bin = ceil( (0 - mid_he_x_axis(1)) / mid_he_steps(1));
     %determine which bin simulation should go into
     
     %in plane
 %    xbin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),1) - mid_he_x_axis(1)) / mid_he_steps(1));
 %    if result_flip(i) == 1
-%       if xbin > (bins/2)
-%           xbin = xbin - 2*(xbin-(bins/2));
-%       else
-%           xbin = xbin + 2*((bins/2)-xbin);
-%       end              
-%    end
+%        if xbin > (midpoint_x_bin)
+%            xbin = xbin - 2*(xbin-(midpoint_x_bin));
+%        else
+%            xbin = xbin + 2*((midpoint_x_bin)-xbin);
+%        end              
+%     end
 %    ybin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - 1),2) - mid_he_y_axis(1)) / mid_he_steps(2));
-    
+%    result_initial_histogram_matrix(ybin,xbin) = result_initial_histogram_matrix(ybin,xbin) + result_intensity(result_filtered_simulations(i,1));
+ 
     %out of plane
     if He_Atoms > 1
         for j = 1:(He_Atoms - 1)
             xbin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - (j+1)),1) - mid_he_x_axis(1)) / mid_he_steps(1));
             ybin = ceil( (result_mid_he_xyz(i * He_Atoms - (He_Atoms - (j+1)),2) - mid_he_y_axis(1)) / mid_he_steps(2));
             
-            if result_flip(i) == 1
-               if xbin > (bins/2)
-                   xbin = xbin - 2*(xbin-(bins/2));
+            if eq(result_flip(i), 1)
+               if xbin > (midpoint_x_bin)
+                   xbin = xbin - 2*(xbin-(midpoint_x_bin));
+                   %fprintf(string(' xbin: ') + xbin + string(' i: ') + i);
                else
-                   xbin = xbin + 2*((bins/2)-xbin);
+                   xbin = xbin + 2*((midpoint_x_bin)-xbin);
+                   %fprintf(string(' xbin: ') + xbin + string(' i: ') + i);
                end              
             end
             result_initial_histogram_matrix(ybin,xbin) = result_initial_histogram_matrix(ybin,xbin) + result_intensity(result_filtered_simulations(i,1));
