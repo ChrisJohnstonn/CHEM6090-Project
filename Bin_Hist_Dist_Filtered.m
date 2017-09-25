@@ -2,13 +2,16 @@ bins = 600;
 
 c_xyz = vertcat(result_c1_xyz,result_c2_xyz);
 c_xz_vel = zeros(length(c_xyz),1);
+c_angle_dev = zeros(length(c_xyz),1);
 
 result_filtered_simulations = zeros(length(c_xyz),2);
 
-vel_min = 1.6e4;
-vel_max = 1.7e4;
+vel_min = 11000;
+vel_max = 11500;
 
 for i = 1:length(c_xyz)
+    %determine angles
+    c_angle_dev(i) = abs(atan2(c_xyz(i,1),c_xyz(i,3))*180/pi)-90;
     %determine velocity in x-z plane
     c_xz_vel(i) = sqrt(c_xyz(i,1)^2 + c_xyz(i,2)^2);
     %c_xz_vel(i) = abs(c_xyz(i,1));
@@ -113,6 +116,63 @@ for i = 1:length(c_xyz)
 end
 
 %create result matrix
+result_histogram_ccangles_matrix = zeros(bins,bins);
+
+%find min/max xyz values for each carbon
+ccangles1_max = 50;
+ccangles1_min = -50;
+
+ccangles2_max = 50;
+ccangles2_min = -50;
+
+ccangles1_diff = ccangles1_max - ccangles1_min; 
+ccangles1_steps = ccangles1_diff / bins;
+
+ccangles2_diff = ccangles2_max - ccangles2_min; 
+ccangles2_steps = ccangles2_diff / bins;
+
+
+%define axis limits
+ccangles_x_axis = (ccangles1_min(1):ccangles1_steps(1):ccangles1_max(1));
+ccangles_z_axis = (ccangles2_min(1):ccangles2_steps(1):ccangles2_max(1));
+
+for i = 1:(length(c_angle_dev)/2)
+    %determine which bin simulation should go into
+  
+    xbin = (c_angle_dev(i,1) - ccangles_x_axis(1)) / ccangles1_steps(1);
+    zbin = (c_angle_dev(i+(length(c_angle_dev)/2),1) - ccangles_z_axis(1)) / ccangles2_steps(1);
+
+    lx = floor(xbin + 1);
+    ux = ceil(xbin + 1);
+    b1x = ccangles_x_axis(lx);
+    b2x = ccangles_x_axis(ux);
+    lx_p = ((b2x)-(c_angle_dev(i,1)))/(b2x-b1x);
+    ux_p = 1 - lx_p;
+
+    lz = floor(zbin + 1);
+    uz = ceil(zbin + 1);
+    b1z = ccangles_z_axis(lz);
+    b2z = ccangles_z_axis(uz);
+    lz_p = ((b2z)-(c_angle_dev(i+(length(c_angle_dev)/2),1)))/(b2z-b1z);
+    uz_p = 1 - lz_p;
+
+    %add intensity to result matrix
+    if i <= length(c_angle_dev)/2
+        result_histogram_ccangles_matrix(lz,lx) = result_histogram_ccangles_matrix(lz,lx) + lz_p*lx_p*result_intensity(ceil(i/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(uz,lx) = result_histogram_ccangles_matrix(uz,lx) + uz_p*lx_p*result_intensity(ceil(i/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(lz,ux) = result_histogram_ccangles_matrix(lz,ux) + lz_p*ux_p*result_intensity(ceil(i/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(uz,ux) = result_histogram_ccangles_matrix(uz,ux) + uz_p*ux_p*result_intensity(ceil(i/Rotation_Steps),1);
+    else
+        result_histogram_ccangles_matrix(lz,lx) = result_histogram_ccangles_matrix(lz,lx) + lz_p*lx_p*result_intensity(ceil((i-(length(c_xyz)/2))/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(uz,lx) = result_histogram_ccangles_matrix(uz,lx) + uz_p*lx_p*result_intensity(ceil((i-(length(c_xyz)/2))/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(lz,ux) = result_histogram_ccangles_matrix(lz,ux) + lz_p*ux_p*result_intensity(ceil((i-(length(c_xyz)/2))/Rotation_Steps),1);
+        result_histogram_ccangles_matrix(uz,ux) = result_histogram_ccangles_matrix(uz,ux) + uz_p*ux_p*result_intensity(ceil((i-(length(c_xyz)/2))/Rotation_Steps),1);
+    end
+    
+end
+
+
+%create result matrix
 result_histogram_ccvel_matrix = zeros(bins,bins);
 
 %find min/max xyz values for each carbon
@@ -197,4 +257,12 @@ imagesc(ccvel_x_axis,ccvel_z_axis,result_histogram_ccvel_matrix);
 title('4He - Comparison of Carbon Velocities')
 xlabel('carbon 1 xz velocity');
 ylabel('carbon 2 xz velocity');
+set(gca,'YDir','normal')
+
+figure
+
+imagesc(ccangles_x_axis,ccangles_z_axis,result_histogram_ccangles_matrix);
+title('4He - Comparison of Carbon Angle Deviations')
+xlabel('carbon 1 angle deviation');
+ylabel('carbon 2 angle deviation');
 set(gca,'YDir','normal')
